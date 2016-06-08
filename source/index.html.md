@@ -1,8 +1,9 @@
 ---
-title: API Reference
+title: Skeddly API Reference
 
 language_tabs:
-  - shell
+  - http
+  - shell: curl
 
 toc_footers:
   - <a href='#'>Sign Up for a Developer Key</a>
@@ -18,6 +19,17 @@ search: true
 
 Welcome to the Skeddly API.
 
+This API is organized as a [REST](http://en.wikipedia.org/wiki/Representational_State_Transfer)ful API:
+
+* URLs are organized into "resources", and
+* Appropriate HTTP methods, such as GET, POST, PUT, and DELETE are used.
+
+[Cross-origin resource sharing](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing), or CORS, is fully supported.
+
+POST and PUT requests support [JSON](http://www.json.org/) in the body of the request.
+
+All responses, successes and failures, return [JSON](http://www.json.org/).
+
 # Making Requests
 
 All API requests must be made to the following endpoint:
@@ -30,10 +42,16 @@ All requests must use HTTPS.
 
 > To authorize, use this code:
 
+```http
+GET /api/resource HTTP/1.1
+Host: api.skeddly.com
+Authentication: AccessKey <api key>
+```
+
 ```shell
 # With shell, you can just pass the correct header with each request
 curl "api_endpoint_here"
-  -H "Authorization: AccessKey s<api key>"
+  -H "Authorization: AccessKey <api key>"
 ```
 
 > Make sure to replace `<api key>` with your API key.
@@ -57,14 +75,20 @@ You must replace <code>&lt;api key&gt;</code> with your personal API key.
 
 ## List all action executions
 
-> Example Request
+> Sample Request
+
+```http
+GET /api/ActionExecutions HTTP/1.1
+Host: api.skeddly.com
+Authentication: AccessKey <api key>
+```
 
 ```shell
 curl "https://api.skeddly.com/api/ActionExecutions"
   -H "Authorization: AccessKey <api key>"
 ```
 
-> Example Response
+> Sample Response
 
 ```json
 [
@@ -113,14 +137,20 @@ Array of <a href="#actionexecution">ActionExecution</a> objects.
 
 ## Get an action execution
 
-> Example Request
+> Sample Request
+
+```http
+GET /api/ActionExecutions/ActionExecutions/ae-00000001 HTTP/1.1
+Host: api.skeddly.com
+Authentication: AccessKey <api key>
+```
 
 ```shell
 curl "https://api.skeddly.com/api/ActionExecutions/ae-00000001"
   -H "Authorization: AccessKey <api key>"
 ```
 
-> Example Response
+> Sample Response
 
 ```json
 {
@@ -160,14 +190,20 @@ An <a href="#actionexecution">ActionExecution</a> object.
 
 ## Cancel an action execution
 
-> Example Request
+> Sample Request
+
+```http
+PUT /api/ActionExecutions/ActionExecutions/ae-00000001/Cancel HTTP/1.1
+Host: api.skeddly.com
+Authentication: AccessKey <api key>
+```
 
 ```shell
 curl -X PUT "https://api.skeddly.com/api/ActionExecutions/ae-00000001/Cancel"
   -H "Authorization: AccessKey <api key>"
 ```
 
-> Example Response
+> Sample Response
 
 ```json
 {
@@ -353,6 +389,112 @@ secretAccessKey | string | Conditional. Secret access key of the IAM user.
 If registering an IAM role, then `roleArn` and `externalId` are required.
 
 If registering an access key, then `accessKeyId` and `secretAccessKey` are required.
+
+## CreateManagedInstanceGroup
+
+> Sample JSON
+
+```json
+{
+	"backupParameters": {
+    	"schedule": {
+        	"scheduleType": "daily",
+            "timeOfDay": "23:00:00",
+            "parameters": {
+            	"days": [
+                	"sunday",
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday"
+                ]
+            }
+        },
+        "backupName": "daily-backup-$(DATE)",
+        "tags": [
+        	{
+            	"name": "Created by",
+                "value": "Skeddly"
+            }
+        ]
+    },
+    "deleteBackupsParameters": {
+    	"schedule": {
+        	"scheduleType": "daily",
+            "timeOfDay": "03:00:00",
+            "parameters": {
+            	"days": [
+                	"saturday"
+                ]
+            }
+        },
+        "olderThanDays": 7,
+        "minimumToKeep": 2,
+        "isPerVolume": true
+    },
+    "name": "My Group",
+    "startStopParameters": {
+    	"schedule": {
+        	"scheduleType": "daily",
+            "timeOfDay": "08:00:00",
+            "parameters": {
+            	"days": [
+                	"monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday"
+                ]
+            }
+        },
+        "stopTimeInSeconds": 43200
+    },
+    "timeZoneId": "UTC"
+}
+```
+
+Specification for a new Managed Instance Group.
+
+Property | Type | Description
+-------- | ---- | -----------
+backupParameters | object | Parameters for the instance backup.
+deleteBackupsParameters | object | Parameters for the instance backup deletions.
+name | string | Required. Name of the Managed Instance Group.
+startStopParameters | object | Parameters for starting and stopping the instance.
+timeZoneId | string | Required. ID of the time zone in which the Managed Instance Group will execute.
+
+## CreateUser
+
+
+> Sample JSON
+
+```json
+{
+	"emailAddress": "user@example.com",
+    "managedPolicyIds": [
+    	"full"
+    ],
+    "username": "user1",
+    "password": "reallygoodpassword"
+}
+```
+
+Specification for a new user.
+
+Property | Type | Description
+-------- | ---- | -----------
+emailAddress | string | Required. Email address for the new user. It must not already be used by another user.
+managedPolicyIds | array of string | List of Managed Policy IDs to apply to the new user.
+password | string | Required. Password for the new user.
+username | string | Required. Username for the new user.
+
+<aside class="notice">
+Usernames and email addresses must be unique across all users of all Skeddly accounts. 
+</aside>
+
+Many email servers support "+ notation" to support unique passwords for a single inbox. For example, if the real email address was "user@example.com", then "user+skeddly@example.com" would forward to the same inbox. Essentially, everything between the "+" and "@" characters is ignored. Check with your IT team to see if your email servers support "+ notation".
 
 # API Clients
 
