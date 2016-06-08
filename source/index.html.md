@@ -101,7 +101,7 @@ curl "https://api.skeddly.com/api/ActionExecutions"
     	"code": 0,
         "text": "Execution succeeded"
     },
-    "trigger": "schedlue",
+    "trigger": "schedule",
     "actionId": "a-00000001",
     "actionVersionId": "av-00000001",
     "actionType": "amazon-start-ec2-instance",
@@ -162,7 +162,7 @@ curl "https://api.skeddly.com/api/ActionExecutions/ae-00000001"
         "code": 0,
         "text": "Execution succeeded"
     },
-    "trigger": "schedlue",
+    "trigger": "schedule",
     "actionId": "a-00000001",
     "actionVersionId": "av-00000001",
     "actionType": "amazon-start-ec2-instance",
@@ -210,7 +210,7 @@ curl -X PUT "https://api.skeddly.com/api/ActionExecutions/ae-00000001/Cancel"
     "actionExecutionId": "ae-00000001",
     "status": "cancelling",
     "startDate": "2016-06-01T12:00:00Z",
-    "trigger": "schedlue",
+    "trigger": "schedule",
     "actionId": "a-00000001",
     "actionVersionId": "av-00000001",
     "actionType": "amazon-start-ec2-instance",
@@ -292,7 +292,7 @@ timeZoneId | string | ID of the time zone for the action.
     "startDate": "2016-06-01T12:00:00Z",
     "status": "complete",
     "timeZoneId": "UTC",
-    "trigger": "schedlue"
+    "trigger": "schedule"
 }
 ```
 
@@ -791,6 +791,64 @@ timeZoneId | string | ID of the time zone in which the Managed Instance Group wi
 To check for the existance of a schedule, refer to the `isBackupInstance`, `isDeleteBackups`, and `isStartInstance` properties.
 
 For performance reasons, `backupParameters`, `deleteBackupsParameters`, and `startStopParameters` will only be included when requested as part of the request.
+
+## ManagedInstanceSchedule
+
+> Sample JSON
+
+```json
+{
+    "scheduleType": "daily",
+    "timeOfDay": "23:00:00",
+    "parameters": {
+        "days": [
+            "sunday",
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday"
+        ]
+    }
+}
+```
+
+Specification for a Managed Instance schedule.
+
+Property | Type | Description
+-------- | ---- | -----------
+scheduleType | string | Type of schedule. Valid values include: hourly, daily, monthly.
+timeOfDay | string | Time of day to start. Format is 24-hour, "hh:mm:ss".
+parameters | <a href="#scheduleparameters">object</a> | Extra parameters for the schedule.
+
+## ManagedInstanceStartStopParameters
+
+```json
+{
+	"schedule": {
+    	"scheduleType": "daily",
+        "timeOfDay": "08:00:00",
+        "parameters": {
+            "days": [
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday"
+            ]
+        }
+    },
+    "stopTimeInSeconds": 43200
+}
+```
+
+Specification for parameters specific to an instance start/stop schedule.
+
+Property | Type | Description
+-------- | ---- | -----------
+schedule | object | Schedule for the deletion of backups.
+stopTimeInSeconds | integer | Amount of time, in seconds, to keep the EC2 instance running.
 
 # API Clients
 
