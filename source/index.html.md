@@ -459,14 +459,13 @@ Specification for a new Managed Instance Group.
 
 Property | Type | Description
 -------- | ---- | -----------
-backupParameters | object | Parameters for the instance backup.
-deleteBackupsParameters | object | Parameters for the instance backup deletions.
+backupParameters | <a href="#managedinstancebackupparameters">object</a> | Parameters for the instance backup.
+deleteBackupsParameters | <a href="#managedinstancedeletebackupsparameters">object</a> | Parameters for the instance backup deletions.
 name | string | Required. Name of the Managed Instance Group.
 startStopParameters | object | Parameters for starting and stopping the instance.
 timeZoneId | string | Required. ID of the time zone in which the Managed Instance Group will execute.
 
 ## CreateUser
-
 
 > Sample JSON
 
@@ -495,6 +494,303 @@ Usernames and email addresses must be unique across all users of all Skeddly acc
 </aside>
 
 Many email servers support "+ notation" to support unique passwords for a single inbox. For example, if the real email address was "user@example.com", then "user+skeddly@example.com" would forward to the same inbox. Essentially, everything between the "+" and "@" characters is ignored. Check with your IT team to see if your email servers support "+ notation".
+
+## Credential
+
+> Sample JSON for an IAM role
+
+```json
+{
+	"actionIds": [
+    	"a-00000001"
+    ],
+	"cloudProviderSubTypeId": "amazon-standard",
+	"createdDate": "2016-06-08T14:42:00Z",
+	"credentialId": "cred-00000001",
+    "credentialType": "amazon-iam-role",
+    "externalId": "skeddly-12345678",
+    "isUsedForSnsNotifications": false,
+    "lastModifiedDate": "2016-06-08T14:42:00Z",
+    "lastModifiedBy": "u-00000001",
+    "managedInstanceIds": [
+    	"mi-00000001"
+    ],
+    "name": "My Credential",
+    "roleArn": "arn:aws:iam::123456789012:role/Skeddly",
+    "status": "active"
+}
+```
+
+Specification for a new user.
+
+Property | Type | Description
+-------- | ---- | -----------
+accessKeyId | string | Access key of the IAM user.
+actionIds | array of string | IDs of the actions using the credential.
+cloudProviderSubTypeId | string | Cloud-provider sub-type ID. Valid values include: amazon-standard, amazon-govcloud-us, amazon-china.
+createdDate | string | Date, in ISO 8601 format, when the credential was registered.
+credentialId | string | ID of the credential.
+credentialType | string | Type of credential being registered. Valid values include: amazon-iam-role, amazon-access-key.
+externalId | string | External ID used with the IAM role.
+isUsedForSnsNotifications | boolean | True if the credential is configured to send SNS notifications. False otherwise.
+lastModifiedDate | string | Date, in ISO 8601 format, when the credential was last modified.
+lastModifiedBy | string | ID of the user whom last modified the credential.
+managedInstanceIds | array of string | IDs of the Managed Instances using the credential.
+name | string | Friendly name for the credential.
+roleArn | string | ARN for the IAM role being registered.
+secretAccessKey | string | Secret access key of the IAM user.
+status | string | Status of the credential. Valid values include: active, deleted.
+
+If `credentialType` is "amazon-iam-role", then `roleArn` and `externalId` will be present.
+
+If `credentialType` is "amazon-access-key", then `accessKeyId` and `secretAccessKey` will be present.
+
+## DailyScheduleParameters
+
+> Sample JSON
+
+```json
+{
+	"days": [
+    	"sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday"
+    ]
+}
+```
+
+Specification for parameters specific to a daily schedule.
+
+Derived from <a href="#scheduleparameters">ScheduleParameters</a> and includes all properties.
+
+Property | Type | Description
+-------- | ---- | -----------
+days | array of string | Array of days of the week. Possible values include: sunday, monday, tuesday, wednesday, thursday, friday, saturday.
+
+## DetachManagedPolicy
+
+> Sample JSON
+
+```json
+{
+	"managedPolicyId": "full"
+}
+```
+
+Specifies the managed policy to detacxh from a user.
+
+Property | Type | Description
+-------- | ---- | -----------
+managedPolicyId | string | Required. ID of the managed policy to detach from the user.
+
+## HourlyScheduleParameters
+
+> Sample JSON
+
+```json
+{
+	"hours": [
+    	0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+    ]
+}
+```
+
+Specification for parameters specific to a hourly schedule.
+
+Derived from <a href="#scheduleparameters">ScheduleParameters</a> and includes all properties.
+
+Property | Type | Description
+-------- | ---- | -----------
+hours | array of integers | Array of hours of the day. Possible values include integers from 0 to 23.
+
+## ManagedInstanceBackupParameters
+
+```json
+{
+	"backupName": "daily-backup-$(DATE)",
+    "schedule": {
+    	"scheduleType": "daily",
+        "timeOfDay": "23:00:00",
+        "parameters": {
+            "days": [
+                "sunday",
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday"
+            ]
+        }
+    },
+    "tags": [
+    	{
+        	"name": "Created by",
+            "value": "Skeddly"
+        }
+    ]
+}
+```
+
+Specification for parameters specific to a backup schedule.
+
+Property | Type | Description
+-------- | ---- | -----------
+backupName | string | Name to use when creating the backup.
+schedule | object | Schedule for the backup.
+tags | array of object | Tags to add to the backup.
+
+## ManagedInstanceDeleteBackupsParameters
+
+```json
+{
+	"isPerVolume": true,
+    "minimumToKeep": 2,
+    "olderThanDays": 7,
+    "schedule": {
+    	"scheduleType": "daily",
+        "timeOfDay": "23:00:00",
+        "parameters": {
+            "days": [
+                "sunday",
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday"
+            ]
+        }
+    }
+}
+```
+
+Specification for parameters specific to a backup schedule.
+
+Property | Type | Description
+-------- | ---- | -----------
+isPerVolume | boolean | Applies when deleting EBS snapshots only.
+minimumToKeep | integer | Minimum number of backups to preserve.
+olderThanDays | integer | Minimum age for a backup to be deleted.
+schedule | object | Schedule for the deletion of backups.
+
+## CreateManagedInstanceGroup
+
+> Sample JSON
+
+```json
+{
+	"backupParameters": {
+    	"schedule": {
+        	"scheduleType": "daily",
+            "timeOfDay": "23:00:00",
+            "parameters": {
+            	"days": [
+                	"sunday",
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday"
+                ]
+            }
+        },
+        "backupName": "daily-backup-$(DATE)",
+        "tags": [
+        	{
+            	"name": "Created by",
+                "value": "Skeddly"
+            }
+        ]
+    },
+    "createdDate": "2016-06-08T15:14:00Z",
+    "deleteBackupsParameters": {
+    	"schedule": {
+        	"scheduleType": "daily",
+            "timeOfDay": "03:00:00",
+            "parameters": {
+            	"days": [
+                	"saturday"
+                ]
+            }
+        },
+        "olderThanDays": 7,
+        "minimumToKeep": 2,
+        "isPerVolume": true
+    },
+    "isBackupInstance": true,
+    "isDeleteBackups": true,
+    "isStartInstance": true,
+    "lastModifiedBy": "u-00000001",
+    "managedInstanceGroupId": "mig-00000001",
+    "name": "My Group",
+    "startStopParameters": {
+    	"schedule": {
+        	"scheduleType": "daily",
+            "timeOfDay": "08:00:00",
+            "parameters": {
+            	"days": [
+                	"monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday"
+                ]
+            }
+        },
+        "stopTimeInSeconds": 43200
+    },
+    "timeZoneId": "UTC"
+}
+```
+
+Specification for a Managed Instance Group.
+
+Property | Type | Description
+-------- | ---- | -----------
+createdDate | string | Date, in ISO 8601 format, when the Managed Instance Group was created.
+backupParameters | <a href="#managedinstancebackupparameters">object</a> | Parameters for the instance backup.
+deleteBackupsParameters | <a href="#managedinstancedeletebackupsparameters">object</a> | Parameters for the instance backup deletions.
+isBackupInstance | boolean | True if a backup schedule exists.
+isDeleteBackups | boolean | True if a delete backups schedule exists.
+isStartInstance | boolean | True if a start instance schedule exists.
+managedInstanceGroupId | string | ID of the Managed Instance Group.
+lastModifiedBy | string | ID of the user whom last modified the Managed Instance Group.
+name | string | Name of the Managed Instance Group.
+startStopParameters | object | Parameters for starting and stopping the instance.
+timeZoneId | string | ID of the time zone in which the Managed Instance Group will execute.
+
+To check for the existance of a schedule, refer to the `isBackupInstance`, `isDeleteBackups`, and `isStartInstance` properties.
+
+For performance reasons, `backupParameters`, `deleteBackupsParameters`, and `startStopParameters` will only be included when requested as part of the request.
 
 # API Clients
 
