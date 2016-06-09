@@ -13,6 +13,7 @@ includes:
   - actionExecutions
   - actions
   - regions
+  - timeZones
   - models
   - apiClients
   - errors
