@@ -6,7 +6,7 @@ language_tabs:
   - shell: curl
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
+  - <a href='https://app.skeddly.com/Account/Register'>Sign-up for a Skeddly account</a>
   - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
 
 includes:
@@ -56,7 +56,7 @@ curl "api_endpoint_here"
 
 > Make sure to replace `<api key>` with your API key.
 
-In order to use the Skeddly API, you require an API key. API keys can be obtained by doin the following:
+In order to use the Skeddly API, you require an API key. API keys can be obtained by doing the following:
 
 1. Sign-in to your Skeddly account.
 2. Click your username on the top-right of the page, then click "Account Settings".
@@ -308,11 +308,29 @@ actionVersionId | string | Version ID of the action that was executed.
 credentialId | string | ID of the credential.
 endDate | string | Date, in ISO8601 format, when the action finished. Will not be present if the status is not "complete".
 managedInstanceId | string | ID of the Managed Instance in which the action belongs. Will not be present if the action is not part of a Managed Instance.
-result | object | Will not be present if the status is not "complete".
+result | <a href="#actionexecutionresult">object</a> | Will not be present if the status is not "complete".
 startDate | string | Date, in ISO8601 format, when the action started.
 status | string | Status of the execution. Valid values include: running, complete, cancelling.
 timeZoneId | string | ID of the time zone for the action.
 trigger | string | Trigger which started the action. Valid values include: schedule, user, sns.
+
+## ActionExecutionResult
+
+> Sample JSON
+
+```json
+{
+    "code": 0,
+    "text": "Execution succeeded"
+}
+```
+
+Specifies the result of an action execution.
+
+Property | Type | Description
+-------- | ---- | -----------
+code | integer | Result code.
+text | string | Resulting text message.
 
 ## AmazonIamRoleExternalId
 
@@ -462,7 +480,7 @@ Property | Type | Description
 backupParameters | <a href="#managedinstancebackupparameters">object</a> | Parameters for the instance backup.
 deleteBackupsParameters | <a href="#managedinstancedeletebackupsparameters">object</a> | Parameters for the instance backup deletions.
 name | string | Required. Name of the Managed Instance Group.
-startStopParameters | object | Parameters for starting and stopping the instance.
+startStopParameters | <a href="#managedinstancestartstopparameters">object</a> | Parameters for starting and stopping the instance.
 timeZoneId | string | Required. ID of the time zone in which the Managed Instance Group will execute.
 
 ## CreateUser
@@ -664,7 +682,7 @@ Specification for parameters specific to a backup schedule.
 Property | Type | Description
 -------- | ---- | -----------
 backupName | string | Name to use when creating the backup.
-schedule | object | Schedule for the backup.
+schedule | <a href="#managedinstanceschedule">object</a> | Schedule for the backup.
 tags | array of object | Tags to add to the backup.
 
 ## ManagedInstanceDeleteBackupsParameters
@@ -699,9 +717,9 @@ Property | Type | Description
 isPerVolume | boolean | Applies when deleting EBS snapshots only.
 minimumToKeep | integer | Minimum number of backups to preserve.
 olderThanDays | integer | Minimum age for a backup to be deleted.
-schedule | object | Schedule for the deletion of backups.
+schedule | <a href="#managedinstanceschedule">object</a> | Schedule for the deletion of backups.
 
-## CreateManagedInstanceGroup
+## ManagedInstanceGroup
 
 > Sample JSON
 
@@ -785,7 +803,7 @@ isStartInstance | boolean | True if a start instance schedule exists.
 managedInstanceGroupId | string | ID of the Managed Instance Group.
 lastModifiedBy | string | ID of the user whom last modified the Managed Instance Group.
 name | string | Name of the Managed Instance Group.
-startStopParameters | object | Parameters for starting and stopping the instance.
+startStopParameters | <a href="#managedinstancestartstopparameters">object</a> | Parameters for starting and stopping the instance.
 timeZoneId | string | ID of the time zone in which the Managed Instance Group will execute.
 
 To check for the existance of a schedule, refer to the `isBackupInstance`, `isDeleteBackups`, and `isStartInstance` properties.
@@ -847,8 +865,398 @@ Specification for parameters specific to an instance start/stop schedule.
 
 Property | Type | Description
 -------- | ---- | -----------
-schedule | object | Schedule for the deletion of backups.
+schedule | <a href="#managedinstanceschedule">object</a> | Schedule for the deletion of backups.
 stopTimeInSeconds | integer | Amount of time, in seconds, to keep the EC2 instance running.
+
+## ManagedPolicy
+
+```json
+{
+	"managedPolicyId": "full",
+    "name": "Full Access"
+}
+```
+
+Specification for a managed policy.
+
+Property | Type | Description
+-------- | ---- | -----------
+managedPolicyId | string | ID of the managed policy.
+name | string | Name of the managed policy.
+
+## ModifyCredential
+
+> Sample JSON for modifying an IAM role
+
+```json
+{
+	"cloudProviderSubTypeId": "amazon-standard",
+    "externalId": "skeddly-12345678",
+    "name": "My Credentials",
+    "roleArn": "arn:aws:iam:123456789012::role/Skeddly"
+}
+```
+
+> Sample JSON for modifying an IAM access key
+
+```json
+{
+	"accessKeyId": "AK123456789012345678",
+	"cloudProviderSubTypeId": "amazon-standard",
+    "name": "My Credentials",
+    "secretAccessKey": "1234567890123456789012345678901234567890"
+}
+```
+
+Specifies the credential information to modify.
+
+Property | Type | Description
+-------- | ---- | -----------
+accessKeyId | string | Updated access key of the IAM user.
+externalId | string | Updated external ID used with the IAM role. Must have been generated using <a href="#credentialsgenerateiamroleexternalid"></a>.
+name | string | Updated friendly name for the credential.
+roleArn | string | Updated ARN for the IAM role being registered.
+secretAccessKey | string | Updated secret access key of the IAM user.
+
+When modifying credentials, only the properties being modified need to be included.
+
+## ModifyManagedInstanceGroup
+
+
+> Sample JSON
+
+```json
+{
+	"backupParameters": {
+    	"schedule": {
+        	"scheduleType": "daily",
+            "timeOfDay": "23:00:00",
+            "parameters": {
+            	"days": [
+                	"sunday",
+                    "monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday",
+                    "saturday"
+                ]
+            }
+        },
+        "backupName": "daily-backup-$(DATE)",
+        "tags": [
+        	{
+            	"name": "Created by",
+                "value": "Skeddly"
+            }
+        ]
+    },
+    "deleteBackupsParameters": {
+    	"schedule": {
+        	"scheduleType": "daily",
+            "timeOfDay": "03:00:00",
+            "parameters": {
+            	"days": [
+                	"saturday"
+                ]
+            }
+        },
+        "olderThanDays": 7,
+        "minimumToKeep": 2,
+        "isPerVolume": true
+    },
+    "name": "My Group",
+    "startStopParameters": {
+    	"schedule": {
+        	"scheduleType": "daily",
+            "timeOfDay": "08:00:00",
+            "parameters": {
+            	"days": [
+                	"monday",
+                    "tuesday",
+                    "wednesday",
+                    "thursday",
+                    "friday"
+                ]
+            }
+        },
+        "stopTimeInSeconds": 43200
+    },
+    "timeZoneId": "UTC"
+}
+```
+
+Specification for modifying an existing Managed Instance Group.
+
+Property | Type | Description
+-------- | ---- | -----------
+backupParameters | <a href="#managedinstancebackupparameters">object</a> | Parameters for the instance backup.
+deleteBackupsParameters | <a href="#managedinstancedeletebackupsparameters">object</a> | Parameters for the instance backup deletions.
+name | string | Required. Name of the Managed Instance Group.
+startStopParameters | <a href="#managedinstancestartstopparameters">object</a> | Parameters for starting and stopping the instance.
+timeZoneId | string | Required. ID of the time zone in which the Managed Instance Group will execute.
+
+## ModifyUser
+
+```json
+{
+	"emailAddress": "user@example.com",
+    "status": "enabled"
+}
+```
+
+Updated values for an account sub-user.
+
+Property | Type | Description
+-------- | ---- | -----------
+emailAddress | string | Updated email address for the user.
+status | string | Updated status of the user. Valid values include: enabled, disabled.
+
+## ModifyUserPassword
+
+```json
+{
+	"password": "myreallystrongpassword"
+}
+```
+
+New password to apply to a user.
+
+Property | Type | Description
+-------- | ---- | -----------
+password | string | Updated password for the user.
+
+## MonthlyScheduleParameters
+
+> Sample JSON
+
+```json
+{
+	"dayOfMonth": "indicate-day-and-week",
+	"months": [
+    	"january",
+        "july"
+    ],
+    "weekAndDay": {
+    	"day": "sunday",
+        "week": "first"
+    }
+}
+```
+
+Parameters for a monthly schedule.
+
+Derived from <a href="#scheduleparameters">ScheduleParameters</a> and includes all properties.
+
+Property | Type | Description
+-------- | ---- | -----------
+dayOfMonth | string | Required. Day of the month to execute. Valid values include: same-day-as-start, indicate-day-and-week, last-day.
+months | array of string | Required. Array of months of the year. Possible values include: january, february, march, april, may, june, july, august, september, october, november, december.
+weekAndDay | <a href="#weekandday">object</a> | Conditional. Indicates the week and day to execute.
+
+## NoneScheduleParameters
+
+> Sample JSON
+
+```json
+{
+}
+```
+
+Parameters for a "none" schedule.
+
+Derived from <a href="#scheduleparameters">ScheduleParameters</a> and includes all properties.
+
+## Region
+
+> Sample JSON
+
+```json
+{
+	"availabilityZones": [
+    	"us-east-1a",
+        "us-east-1b"
+    ],
+    "cloudProviderSubTypeId": "amazon-standard",
+	"displayName": "N. Virginia",
+    "regionName": "us-east-1"
+}
+```
+
+Description of a region.
+
+Property | Type | Description
+-------- | ---- | -----------
+availabilityZones | array of string | List of availability zones in the region.
+cloudProviderSubTypeId | string | Cloud-provider sub-type for the region. Valid values include: amazon-stanard, amazon-govcloud-us, amazon-china.
+displayName | string | Friendly name of the region.
+regionName | string | System name of the region.
+
+The `availabilityZones` property will only be populated when requested.
+
+## RemoveUserMfa
+
+> Sample JSON
+
+```json
+{
+	"mfaType": "google-auth"
+}
+```
+
+Parameters to remove MFA from an account sub-user.
+
+Property | Type | Description
+-------- | ---- | -----------
+mfaType | array of string | Type of MFA to remove. Valid values include: google-auth, mobile-otp.
+
+## ScheduleParameters
+
+```json
+{
+}
+```
+
+Base model for the schedule parameter models:
+
+* <a href="#nonescheduleparameters">NoneScheduleParameters</a>
+* <a href="#hourlyscheduleparameters">HourlyScheduleParameters</a>
+* <a href="#dailyscheduleparameters">DailyScheduleParameters</a>
+* <a href="#weeklyscheduleparameters">WeeklyScheduleParameters</a>
+* <a href="#monthlyscheduleparameters">MonthlyScheduleParameters</a>
+
+## Tag
+
+> Sample JSON
+
+```json
+{
+	"name": "Tag name",
+    "value": "Tag value"
+}
+```
+
+Properties of a resource tag.
+
+Property | Type | Description
+-------- | ---- | -----------
+name | string | Name of the tag.
+value | string | Value of the tag.
+
+## TimeZone
+
+> Sample JSON
+
+```json
+{
+	"displayName": "(UTC-5:00) Eastern Standard Time",
+    "timeZoneId": "Eastern Standard Time"
+}
+```
+
+Properties of a time zone.
+
+Property | Type | Description
+-------- | ---- | -----------
+displayName | string | Name of the time zone.
+timeZoneId | string | ID of the time zone.
+
+## UpcomingActionExecution
+
+> Sample JSON
+
+```json
+{
+	"actionId": "a-00000001",
+    "actionName": "My Action",
+    "actionType": "amazon-start-ec2-instances",
+    "actionVersionId": "av-00000001",
+    "managedInstanceId": "mi-00000001",
+    "startDate": "2016-06-09T10:57:00Z",
+    "timeZoneId": "Eastern Standard Time"
+}
+```
+
+Properties of a time zone.
+
+Property | Type | Description
+-------- | ---- | -----------
+actionId | string | ID of the action.
+actionName | string | Name of the action.
+actionType | string | Type of action.
+actionVersionId | string | Version ID of the action.
+managedInstanceId | string | ID of the Managed Instance to which the action belongs.
+startDate | string | Date, in ISO 8601 format, at which the action will next execute.
+timeZoneId | string | Time zone in which the action will execute.
+
+## User
+
+> Sample JSON
+
+```json
+{
+	"emailAddress": "user@example.com",
+    "lastAccessDate": "2016-06-09T11:00:00Z",
+    "managedPolicies": [
+    	{
+        	"managedPolicyId": "full",
+    		"name": "Full Access"
+        }
+    ],
+    "mfaType": "google-auth",
+    "status": "enabled",
+    "userId": "u-00000001",
+    "username": "user1"
+}
+```
+
+Properties of a time zone.
+
+Property | Type | Description
+-------- | ---- | -----------
+emailAddress | string | Email address of the user.
+lastAccessDate | string | Date, in ISO 8601 format, at which the user last signed-in.
+managedPolicies | string | Managed policies attached to the user.
+mfaType | string | Type of MFA device used by the user. Valid values include: none, google-auth, mobile-otp.
+status | string | Status of the user. Valid values include: enabled, disabled, deleted.
+userId | string | ID of the user.
+username | string | Username of the user.
+
+## WeekAndDay
+
+> Sample JSON
+
+```json
+{
+	"day": "sunday",
+    "week": "first"
+}
+```
+
+Indicator for a day in a month.
+
+Property | Type | Description
+-------- | ---- | -----------
+day | string | Day of the week. Valid values include: sunday, monday, tuesday, wednesday, thursday, friday, saturday.
+week | string | Week of the month. Valid values include: first, second, third, fourth, last.
+
+## WeeklyScheduleParameters
+
+> Sample JSON
+
+```json
+{
+	"dayOfWeek": "same-day-as-start"
+}
+```
+
+Parameters for a weekly schedule.
+
+Derived from <a href="#scheduleparameters">ScheduleParameters</a> and includes all properties.
+
+Property | Type | Description
+-------- | ---- | -----------
+dayOfWeek | string | Required. Day of the week to execute. Valid values include: same-day-as-start.
 
 # API Clients
 
