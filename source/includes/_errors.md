@@ -17,6 +17,8 @@ Error Code | Meaning
 
 When errors occur, the Skeddly API will return a model with the following properties:
 
+> Sample JSON
+
 ```json
 {
 	"errorCode": "UnauthorizedOperation",
