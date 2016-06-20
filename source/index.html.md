@@ -12,6 +12,7 @@ toc_footers:
 includes:
   - actionExecutions
   - actions
+  - credentials
   - regions
   - timeZones
   - models
